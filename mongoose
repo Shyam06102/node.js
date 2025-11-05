@@ -1,0 +1,50 @@
+const express = require("express");
+const mongoose = require("mongoose");
+
+const app = express();
+const PORT = 3000;
+app.use(express.json());
+
+mongoose.connect("mongodb+srv://shyamsha06012002_db_user:123shyam456@shyam06.yd903o2.mongodb.net/MyDatabase", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB Connected"))
+.catch((err) => console.log(err));
+
+const studentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  age: Number,
+  course: { type: String, required: true }
+});
+
+const Student = mongoose.model("Student", studentSchema);
+
+app.post("/students", async (req, res) => {
+    const newstudent = new Student(req.body);
+    await newstudent.save();
+    res.status(201).json(newstudent);
+});
+
+app.get("/students", async (req, res) => {
+    const students = await Student.find();
+    res.status(200).json(students);
+
+});
+
+
+app.put("/students/:id", async (req, res) => {
+  const updatedstudent = await Student.findByIdAndUpdate(req.params.id, req.body, {new:true});
+  res.json(updatedstudent);
+});
+
+
+app.delete("/students/:id", async (req, res) => {
+  const deletedstudent = await Student.findByIdAndDelete(req.params.id);
+  res.json(deletedstudent);
+});
+
+
+
+app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
+
